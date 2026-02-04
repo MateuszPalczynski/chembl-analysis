@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  # --- SPARK MASTER ---
+  spark-master:
+    build: .
+    container_name: spark-master
+    ports:
+      - '8080:8080'
+      - '7077:7077'
+    environment:
+      - SPARK_MODE=master
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master --host spark-master --port 7077 --webui-port 8080
+    volumes:
+      - ./src:/opt/spark/src
+      - ./data:/opt/spark/data
+    networks:
+      - chembl-net
+
+  # --- SPARK WORKER ---
+  spark-worker:
+    build: .
+    container_name: spark-worker
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_WORKER_MEMORY=1G
+      - SPARK_WORKER_CORES=1
+    depends_on:
+      - spark-master
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+    volumes:
+      - ./src:/opt/spark/src
+      - ./data:/opt/spark/data
+    networks:
+      - chembl-net
+
+  # --- MLFLOW ---
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:latest
+    container_name: mlflow-server
+    ports:
+      - "5000:5000"
+    command: mlflow server --backend-store-uri sqlite:///mlflow.db --default-artifact-root ./mlruns --host 0.0.0.0
+    networks:
+      - chembl-net
+
+  # --- AIRFLOW ---
+  airflow:
+    image: apache/airflow:2.7.1
+    container_name: airflow-scheduler
+    user: root
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=SequentialExecutor
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+    ports:
+      - "8081:8080"
+    command: airflow standalone
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - chembl-net
+
+networks:
+  chembl-net:
+    driver: bridge
