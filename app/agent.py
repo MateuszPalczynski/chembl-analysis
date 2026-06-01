@@ -2,14 +2,14 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain.agents import create_agent
-from langchain_core.messages import HumanMessage
+from langgraph.prebuilt import create_react_agent
+from langchain_core.messages import SystemMessage, HumanMessage
 from tools import calculate_physchem_properties, predict_gnn_activity
 
 env_path = Path(__file__).resolve().parent.parent / ".env"
 load_dotenv(dotenv_path=env_path)
 
-def run_agent(smiles: str):
+def run_agent(smiles: str) -> list:
     llm = ChatGoogleGenerativeAI(
         model="gemini-2.5-flash",
         temperature=0.0,
@@ -21,31 +21,19 @@ def run_agent(smiles: str):
     system_prompt = """Jesteś ekspertem ds. chemii informatycznej. Twoim zadaniem jest ocena potencjalnej aktywności biologicznej cząsteczek na podstawie ich struktury SMILES.
     
     Dla każdej podanej cząsteczki MUSISZ wykonać następujące kroki:
-    1. Użyj narzędzia do obliczenia właściwości fizykochemicznych (masa, LogP), aby poznać podstawowe parametry.
-    2. Użyj narzędzia modelu GNN (klasyfikatora), aby otrzymać przewidywaną aktywność i prawdopodobieństwo.
-    3. Połącz te informacje w krótką, profesjonalną interpretację chemiczną w języku polskim. Zwróć uwagę na to, czy parametry (np. Reguła 5 Lipinskiego) mogą wpływać na aktywność.
+    1. Użyj narzędzia do obliczenia właściwości fizykochemicznych (masa, LogP).
+    2. Użyj narzędzia modelu GNN (klasyfikatora).
+    3. Połącz te informacje w krótką, profesjonalną interpretację chemiczną w języku polskim.
     
     Jeśli narzędzie zwróci błąd, poinformuj o tym użytkownika i przerwij analizę."""
 
-    agent_executor = create_agent(
-        model=llm, 
-        tools=tools, 
-        system_prompt=system_prompt
-    )
+    agent_executor = create_react_agent(llm, tools)
 
-    user_message = f"Przeanalizuj cząsteczkę o SMILES: {smiles}"
-    response = agent_executor.invoke({"messages": [HumanMessage(content=user_message)]})
+    messages = [
+        SystemMessage(content=system_prompt),
+        HumanMessage(content=f"Przeanalizuj cząsteczkę o SMILES: {smiles}")
+    ]
     
-    content = response["messages"][-1].content
-    if isinstance(content, list):
-        return content[0].get("text", str(content))
-    return content
-
-if __name__ == "__main__":
-    test_smiles = "CC(=O)OC1=CC=CC=C1C(=O)O"
-    print(f"Analyzing: {test_smiles}\n")
+    response = agent_executor.invoke({"messages": messages})
     
-    result = run_agent(test_smiles)
-    
-    print("\n--- FINAL OUTPUT ---")
-    print(result)
+    return response.get("messages", [])

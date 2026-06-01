@@ -12,20 +12,41 @@ if st.button("Run Agent"):
     mol = Chem.MolFromSmiles(smiles_input)
     
     if mol is None:
-        st.error("Invalid SMILES format.")
+        st.error("Nieprawidłowy format SMILES.")
     else:
         col1, col2 = st.columns([1, 2])
         
         with col1:
-            st.subheader("Structure 2D")
+            st.subheader("Struktura 2D")
             img = Draw.MolToImage(mol)
             st.image(img)
             
         with col2:
-            st.subheader("LLM Agent Analysis")
-            with st.spinner("Orchestrating tools..."):
+            st.subheader("Analiza Agenta LLM")
+            with st.spinner("Orkiestracja narzędzi..."):
                 try:
                     result = run_agent(smiles_input)
-                    st.markdown(result)
+                    
+                    if isinstance(result, str):
+                        st.markdown(result)
+                    elif isinstance(result, list):
+                        with st.expander("Ślad działania Agenta (Trace)", expanded=False):
+                            for msg in result:
+                                if hasattr(msg, "type") and msg.type == "ai" and hasattr(msg, "tool_calls") and msg.tool_calls:
+                                    for tool_call in msg.tool_calls:
+                                        st.markdown(f"🛠️ **Wywołanie narzędzia:** `{tool_call.get('name', 'unknown')}`")
+                                        st.code(tool_call.get('args', ''))
+                                elif hasattr(msg, "type") and msg.type == "tool":
+                                    st.markdown("✅ **Wynik:**")
+                                    st.code(msg.content)
+
+                        final_msg = result[-1].content if result else ""
+                        if isinstance(final_msg, list):
+                            final_msg = final_msg[0].get("text", str(final_msg))
+                        
+                        st.markdown(final_msg)
+                    else:
+                        st.error("Unexpected return type from agent.")
+                        
                 except Exception as e:
-                    st.error(f"Agent execution failed: {e}")
+                    st.error(f"Błąd wykonania Agenta: {e}")
