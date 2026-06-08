@@ -1,2 +1,8 @@
 venv/
 .env
+__pycache__/
+*.pyc
+dags/data/
+*.pt
+*.csv
+*.png
