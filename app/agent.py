@@ -11,19 +11,19 @@ load_dotenv(dotenv_path=env_path)
 
 def run_agent(smiles: str) -> list:
     llm = ChatGoogleGenerativeAI(
-        model="gemini-2.5-flash",
+        model="gemini-2.5-flash-lite",
         temperature=0.0,
         api_key=os.environ.get("GOOGLE_API_KEY")
     )
 
     tools = [calculate_physchem_properties, predict_gnn_activity]
 
-    system_prompt = """Jesteś ekspertem ds. chemii informatycznej. Twoim zadaniem jest ocena potencjalnej aktywności biologicznej cząsteczek na podstawie ich struktury SMILES.
+    system_prompt = """Jesteś ekspertem ds. chemii informatycznej. Twoim zadaniem jest ocena potencjalnej aktywności biologicznej cząsteczek.
     
     Dla każdej podanej cząsteczki MUSISZ wykonać następujące kroki:
     1. Użyj narzędzia do obliczenia właściwości fizykochemicznych (masa, LogP).
-    2. Użyj narzędzia modelu GNN (klasyfikatora).
-    3. Połącz te informacje w krótką, profesjonalną interpretację chemiczną w języku polskim.
+    2. Użyj narzędzia modelu GNN, aby przewidzieć wartość pIC50.
+    3. Połącz te informacje w profesjonalną interpretację chemiczną w języku polskim. Wyższa wartość pIC50 oznacza wyższą potencję.
     
     Jeśli narzędzie zwróci błąd, poinformuj o tym użytkownika i przerwij analizę."""
 

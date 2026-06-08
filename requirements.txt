@@ -6,3 +6,4 @@ matplotlib
 mlflow
 rdkit
 scikit-learn
+polars

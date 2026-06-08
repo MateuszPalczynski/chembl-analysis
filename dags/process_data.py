@@ -6,9 +6,9 @@ from pathlib import Path
 BASE_DIR = Path(__file__).parent
 DATA_DIR = BASE_DIR / "data"
 
-ACTIVITY_FILE = DATA_DIR / "chembl_203_ic50_activity.parquet"
-MOLECULE_FILE = DATA_DIR / "molecules_metadata.parquet"
-OUTPUT_FILE = DATA_DIR / "dataset_full_processed.parquet"
+ACTIVITY_FILE = DATA_DIR / "chembl_205_ic50_activity.parquet"
+MOLECULE_FILE = DATA_DIR / "molecules_metadata_205.parquet"
+OUTPUT_FILE = DATA_DIR / "dataset_full_processed_205.parquet"
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(message)s")
 logger = logging.getLogger(__name__)

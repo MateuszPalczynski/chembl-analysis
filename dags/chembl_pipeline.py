@@ -11,13 +11,13 @@ default_args = {
 }
 
 with DAG(
-    'chembl_full_pipeline',
+    'chembl_full_pipeline_205',
     default_args=default_args,
-    description='End-to-end ChEMBL Data Pipeline for Regression',
+    description='End-to-end ChEMBL Data Pipeline for Regression (EGFR)',
     schedule_interval=None,
     start_date=datetime(2023, 1, 1),
     catchup=False,
-    tags=['chembl', 'regression', 'etl']
+    tags=['chembl', 'regression', 'etl', 'egfr']
 ) as dag:
 
     # Fetch Activity Data

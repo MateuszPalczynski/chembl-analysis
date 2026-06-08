@@ -4,9 +4,9 @@ from chembl_webresource_client.new_client import new_client
 from pathlib import Path
 
 # Configuration
-TARGET_CHEMBL_ID = "CHEMBL203"
+TARGET_CHEMBL_ID = "CHEMBL205"
 ACTIVITY_TYPE = "IC50"
-OUTPUT_FILE = "chembl_203_ic50_activity.parquet"
+OUTPUT_FILE = "chembl_205_ic50_activity.parquet"
 
 # Logging setup
 logging.basicConfig(

@@ -13,15 +13,15 @@ BASE_DIR = Path(__file__).resolve().parent
 
 DATA_DIR = BASE_DIR / "data"
 
-INPUT_FILE = DATA_DIR / "chembl_203_ic50_activity.parquet"
+INPUT_FILE = DATA_DIR / "chembl_205_ic50_activity.parquet"
 OUTPUT_DIR = DATA_DIR
 BATCH_SIZE = 50
 
 # Resources to fetch
 RESOURCES_TO_FETCH = {
-    'molecule': 'molecules_metadata',       
-    'mechanism': 'drug_mechanisms',        
-    'compound_structural_alert': 'alerts'  
+    'molecule': 'molecules_metadata_205',       
+    'mechanism': 'drug_mechanisms_205',        
+    'compound_structural_alert': 'alerts_205'  
 }
 
 # --- Logging Setup ---
